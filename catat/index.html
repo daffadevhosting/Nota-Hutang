@@ -48,7 +48,7 @@ firebase.auth().onAuthStateChanged(user => {
       const jatuhTempo = document.getElementById('jatuhTempo').value;
 
       if (!nama || !jumlah || !tanggalPinjam || !jatuhTempo) {
-        alert('Harap isi semua kolom!');
+        showAlert('Harap isi semua kolom!');
         return;
       }
 
