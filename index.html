@@ -10,42 +10,40 @@ header: Catat & Tagih
     <button onclick="loginGoogle()">Masuk dengan Google</button>
 </div>
 
-        <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-        <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<!-- Hapus defer -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
-  <script>
-    // Ganti dengan konfigurasi Firebase kamu
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
     const firebaseConfig = {
-  apiKey: "AIzaSyCiT9DTiVun4mKJAenmEHkhZ9jrjNMTEZs",
-  authDomain: "notahutangmu.firebaseapp.com",
-  projectId: "notahutangmu",
-  storageBucket: "notahutangmu.firebasestorage.app",
-  messagingSenderId: "978954750002",
-  appId: "1:978954750002:web:4dd533087767ef08b4d42b",
-  measurementId: "G-54WD1L6R9Q"
+      apiKey: "AIzaSyCiT9DTiVun4mKJAenmEHkhZ9jrjNMTEZs",
+      authDomain: "notahutangmu.firebaseapp.com",
+      projectId: "notahutangmu",
+      storageBucket: "notahutangmu.firebasestorage.app",
+      messagingSenderId: "978954750002",
+      appId: "1:978954750002:web:4dd533087767ef08b4d42b",
+      measurementId: "G-54WD1L6R9Q"
     };
 
-    const app = firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const provider = new firebase.auth.GoogleAuthProvider();
 
-    function loginGoogle() {
-  console.log("Login Google button clicked");
-  auth.signInWithPopup(provider)
-    .then(result => {
-      console.log("Login successful", result.user);
-      window.location.href = "/catat";
-    })
-    .catch(error => {
-      console.error("Login failed", error);
-      alert("Login gagal: " + error.message);
-    });
-}
+    window.loginGoogle = function () {
+      auth.signInWithPopup(provider)
+        .then(result => {
+          window.location.href = "/catat";
+        })
+        .catch(error => {
+          alert("Login gagal: " + error.message);
+        });
+    }
 
-    // Kalau sudah login, langsung arahkan ke halaman utama
     auth.onAuthStateChanged(user => {
       if (user) {
         window.location.href = "/catat";
       }
     });
-  </script>
+  });
+</script>
