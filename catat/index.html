@@ -6,17 +6,24 @@ permalink: /catat
 
 <div class="app-container">
   <h2>Catat Hutang</h2>
-<div class="input-grup">
-  <input type="text" id="nama" placeholder="Nama" />
-  <input type="number" id="jumlah" placeholder="Jumlah (Rp)" />
-  <input type="date" id="tanggalPinjam" />
-  <input type="date" id="jatuhTempo" />
-</div>
-  <button onclick="tambahHutang()">Tambah Hutang</button>
+  <button onclick="bukaModal()">+ Tambah Hutang</button>
 
   <h3>Daftar Hutang</h3>
   <div id="daftarHutang"></div>
-<button id="logout" onclick="logout()">Logout</button>
+  <button id="logout" onclick="logout()">Logout</button>
+</div>
+
+<!-- Modal -->
+<div id="hutangModal" style="display: none;" class="modal-overlay">
+  <div class="modal-box">
+    <h3 id="modalTitle">Tambah Hutang</h3>
+    <input type="text" id="nama" placeholder="Nama" />
+    <input type="number" id="jumlah" placeholder="Jumlah (Rp)" />
+    <input type="date" id="tanggalPinjam" />
+    <input type="date" id="jatuhTempo" />
+    <button onclick="simpanHutang()">Simpan</button>
+    <button onclick="tutupModal()">Batal</button>
+  </div>
 </div>
   
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -39,56 +46,62 @@ permalink: /catat
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
-function showAlert(pesan) {
-  alert(pesan); // Ganti sesuai kebutuhan, bisa pakai custom UI
-}
-// Cek status autentikasi
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "/";
+
+let editId = null;
+
+function bukaModal(data = null) {
+  document.getElementById("hutangModal").style.display = "block";
+  document.getElementById("modalTitle").innerText = data ? "Edit Hutang" : "Tambah Hutang";
+
+  if (data) {
+    editId = data.id;
+    document.getElementById("nama").value = data.nama;
+    document.getElementById("jumlah").value = data.jumlah;
+    document.getElementById("tanggalPinjam").value = data.tanggalPinjam;
+    document.getElementById("jatuhTempo").value = data.jatuhTempo;
   } else {
-    tampilkanHutang(); // tampilkan hanya setelah user login
-  }
-});
-
-// Fungsi untuk menambah hutang
-async function tambahHutang() {
-  const nama = document.getElementById("nama").value.trim();
-  const jumlah = parseInt(document.getElementById("jumlah").value);
-  const tanggalPinjam = document.getElementById("tanggalPinjam").value;
-  const jatuhTempo = document.getElementById("jatuhTempo").value;
-
-  // Validasi input
-  if (!nama || isNaN(jumlah) || !tanggalPinjam || !jatuhTempo) {
-    showAlert("Harap isi semua kolom dengan benar!");
-    return;
-  }
-
-  try {
-    // Tambahkan data ke Firestore
-await db.collection('hutang').add({
-  uid: auth.currentUser.uid, // tambahkan ini
-  nama,
-  jumlah,
-  tanggalPinjam,
-  jatuhTempo,
-  status: 'belum lunas'
-});
-
-    showAlert("Hutang berhasil ditambahkan!");
-
-    // Reset form
+    editId = null;
     document.getElementById("nama").value = "";
     document.getElementById("jumlah").value = "";
     document.getElementById("tanggalPinjam").value = "";
     document.getElementById("jatuhTempo").value = "";
-  } catch (error) {
-    console.error("Gagal menambah hutang:", error);
-    showAlert("Terjadi kesalahan saat menambah hutang.");
   }
 }
 
-// Fungsi untuk menampilkan daftar hutang
+function tutupModal() {
+  document.getElementById("hutangModal").style.display = "none";
+}
+
+async function simpanHutang() {
+  const nama = document.getElementById("nama").value.trim();
+  const jumlah = parseInt(document.getElementById("jumlah").value);
+  const tanggalPinjam = document.getElementById("tanggalPinjam").value;
+  const jatuhTempo = document.getElementById("jatuhTempo").value;
+  const uid = auth.currentUser.uid;
+
+  if (!nama || isNaN(jumlah) || !tanggalPinjam || !jatuhTempo) {
+    return alert("Isi semua kolom dengan benar.");
+  }
+
+  try {
+    if (editId) {
+      await db.collection("hutang").doc(editId).update({
+        nama, jumlah, tanggalPinjam, jatuhTempo
+      });
+    } else {
+      await db.collection("hutang").add({
+        uid, nama, jumlah, tanggalPinjam, jatuhTempo, status: "belum lunas"
+      });
+    }
+
+    tampilkanHutang();
+    tutupModal();
+  } catch (e) {
+    console.error("Gagal menyimpan hutang", e);
+    alert("Terjadi kesalahan.");
+  }
+}
+
 async function tampilkanHutang() {
   const container = document.getElementById('daftarHutang');
   container.innerHTML = '';
@@ -110,20 +123,18 @@ async function tampilkanHutang() {
       Jumlah: Rp ${data.jumlah.toLocaleString()}<br/>
       Pinjam: ${data.tanggalPinjam}<br/>
       Jatuh Tempo: ${data.jatuhTempo}<br/>
-      Status: ${data.status}
+      Status: ${data.status}<br/>
+      <button onclick='bukaModal(${JSON.stringify({...data, id: doc.id})})'>Edit</button>
+      <button onclick='hapusHutang("${doc.id}")'>Hapus</button>
     `;
     container.appendChild(div);
   });
 }
 
-async function logout() {
-  try {
-    await auth.signOut(); // Proses logout
-    showAlert("Anda telah logout.");
-    window.location.href = "/"; // Redirect ke halaman login
-  } catch (error) {
-    console.error("Gagal logout:", error);
-    showAlert("Terjadi kesalahan saat logout.");
+async function hapusHutang(id) {
+  if (confirm("Hapus hutang ini?")) {
+    await db.collection("hutang").doc(id).delete();
+    tampilkanHutang();
   }
 }
   </script>
