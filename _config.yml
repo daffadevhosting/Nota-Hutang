@@ -3,6 +3,9 @@ description: Aplikasi pencatat dan penagihan hutang berbasis web.
 baseurl: "" # kosongkan kalau di domain utama
 url: "https://namamu.github.io" # ganti dengan URL GitHub Pages kamu
 
+sass:
+  style: compressed
+
 plugins:
   - jekyll-seo-tag
 
