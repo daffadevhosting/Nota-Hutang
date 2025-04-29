@@ -1,0 +1,70 @@
+---
+layout: default
+title: Catat Hutang
+permalink: /catat
+---
+
+  <h2>Catat Hutang</h2>
+  <input type="text" id="nama" placeholder="Nama" />
+  <input type="number" id="jumlah" placeholder="Jumlah (Rp)" />
+  <input type="date" id="tanggalPinjam" />
+  <input type="date" id="jatuhTempo" />
+  <button onclick="tambahHutang()">Tambah Hutang</button>
+
+  <h3>Daftar Hutang</h3>
+  <div id="daftarHutang"></div>
+  <script>
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+  }
+});
+
+    async function tambahHutang() {
+      const nama = document.getElementById('nama').value;
+      const jumlah = parseInt(document.getElementById('jumlah').value);
+      const tanggalPinjam = document.getElementById('tanggalPinjam').value;
+      const jatuhTempo = document.getElementById('jatuhTempo').value;
+
+      if (!nama || !jumlah || !tanggalPinjam || !jatuhTempo) {
+        alert('Harap isi semua kolom!');
+        return;
+      }
+
+      await db.collection('hutang').add({
+        nama,
+        jumlah,
+        tanggalPinjam,
+        jatuhTempo,
+        status: 'belum lunas'
+      });
+
+      tampilkanHutang();
+      document.getElementById('nama').value = '';
+      document.getElementById('jumlah').value = '';
+      document.getElementById('tanggalPinjam').value = '';
+      document.getElementById('jatuhTempo').value = '';
+    }
+
+    async function tampilkanHutang() {
+      const container = document.getElementById('daftarHutang');
+      container.innerHTML = '';
+
+      const snapshot = await db.collection('hutang').orderBy('jatuhTempo').get();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement('div');
+        div.className = 'hutang-item';
+        div.innerHTML = `
+          <strong>${data.nama}</strong><br/>
+          Jumlah: Rp ${data.jumlah.toLocaleString()}<br/>
+          Pinjam: ${data.tanggalPinjam}<br/>
+          Jatuh Tempo: ${data.jatuhTempo}<br/>
+          Status: ${data.status}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    tampilkanHutang(); // Panggil saat pertama kali
+  </script>
