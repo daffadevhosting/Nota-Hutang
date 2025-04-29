@@ -14,7 +14,7 @@ header: Catat & Tagih
       auth.signInWithPopup(provider)
         .then(result => {
           // Redirect ke halaman utama setelah login
-          window.location.href = "catat.html"; // Ganti dengan file halaman pencatatan hutang
+          window.location.href = "/catat"; // Ganti dengan file halaman pencatatan hutang
         })
         .catch(error => {
           alert("Login gagal: " + error.message);
