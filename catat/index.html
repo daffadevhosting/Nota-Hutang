@@ -55,7 +55,7 @@ async function tambahHutang() {
 
   // Validasi input
   if (!nama || isNaN(jumlah) || !tanggalPinjam || !jatuhTempo) {
-    alert("Harap isi semua kolom dengan benar!");
+    showAlert("Harap isi semua kolom dengan benar!");
     return;
   }
 
@@ -69,7 +69,7 @@ async function tambahHutang() {
       status: "belum lunas",
     });
 
-    alert("Hutang berhasil ditambahkan!");
+    showAlert("Hutang berhasil ditambahkan!");
     tampilkanHutang(); // Refresh daftar hutang
 
     // Reset form
@@ -79,7 +79,7 @@ async function tambahHutang() {
     document.getElementById("jatuhTempo").value = "";
   } catch (error) {
     console.error("Gagal menambah hutang:", error);
-    alert("Terjadi kesalahan saat menambah hutang.");
+    showAlert("Terjadi kesalahan saat menambah hutang.");
   }
 }
 
