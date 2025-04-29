@@ -1,8 +1,14 @@
-  <div class="login-box">
+---
+layout: default
+title: Login
+header: Catat & Tagih
+---
+
+<div class="login-box">
     <h2>Catat & Tagih</h2>
     <p>Masuk untuk mulai mencatat</p>
     <button onclick="loginGoogle()">Masuk dengan Google</button>
-  </div>
+</div>
   <script>
     function loginGoogle() {
       auth.signInWithPopup(provider)
