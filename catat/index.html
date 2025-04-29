@@ -39,7 +39,9 @@ permalink: /catat
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
-
+function showAlert(pesan) {
+  alert(pesan); // Ganti sesuai kebutuhan, bisa pakai custom UI
+}
 // Cek status autentikasi
 auth.onAuthStateChanged(user => {
   if (!user) {
