@@ -4,6 +4,7 @@ baseurl: "" # kosongkan kalau di domain utama
 url: "https://namamu.github.io" # ganti dengan URL GitHub Pages kamu
 
 sass:
+  sass_dir: assets/sass
   style: compressed
 
 plugins:
