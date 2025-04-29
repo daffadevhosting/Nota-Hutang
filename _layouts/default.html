@@ -1,1 +1,21 @@
-.
+<!DOCTYPE html>
+<html lang="id">
+{% include head.html %}
+<body>
+
+  <div class="app-container">
+    <header class="app-header">
+      <h1>{{ page.header | default: site.title }}</h1>
+    </header>
+
+    <main class="app-main">
+      {{ content }}
+    </main>
+
+    <footer class="app-footer">
+      <p>&copy; {{ site.title }} {{ site.time | date: '%Y' }}</p>
+    </footer>
+  </div>
+
+</body>
+</html>
