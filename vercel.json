@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/catat", "destination": "/catat.html" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
