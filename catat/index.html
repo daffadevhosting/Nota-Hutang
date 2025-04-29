@@ -41,9 +41,11 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 // Cek status autentikasi
-firebase.auth().onAuthStateChanged((user) => {
+auth.onAuthStateChanged(user => {
   if (!user) {
-    window.location.href = "/"; // Redirect ke halaman login jika tidak login
+    window.location.href = "/";
+  } else {
+    tampilkanHutang(); // tampilkan hanya setelah user login
   }
 });
 
@@ -62,13 +64,14 @@ async function tambahHutang() {
 
   try {
     // Tambahkan data ke Firestore
-    await db.collection("hutang").add({
-      nama,
-      jumlah,
-      tanggalPinjam,
-      jatuhTempo,
-      status: "belum lunas",
-    });
+await db.collection('hutang').add({
+  uid: auth.currentUser.uid, // tambahkan ini
+  nama,
+  jumlah,
+  tanggalPinjam,
+  jatuhTempo,
+  status: 'belum lunas'
+});
 
     showAlert("Hutang berhasil ditambahkan!");
     tampilkanHutang(); // Refresh daftar hutang
@@ -86,38 +89,30 @@ async function tambahHutang() {
 
 // Fungsi untuk menampilkan daftar hutang
 async function tampilkanHutang() {
-  const container = document.getElementById("daftarHutang");
-  container.innerHTML = "<p>Memuat data...</p>";
+  const container = document.getElementById('daftarHutang');
+  container.innerHTML = '';
 
-  try {
-    const snapshot = await db.collection("hutang").orderBy("jatuhTempo").get();
+  const user = auth.currentUser;
+  if (!user) return;
 
-    // Bersihkan container
-    container.innerHTML = "";
+  const snapshot = await db.collection('hutang')
+    .where('uid', '==', user.uid)
+    .orderBy('jatuhTempo')
+    .get();
 
-    if (snapshot.empty) {
-      container.innerHTML = "<p>Tidak ada data hutang.</p>";
-      return;
-    }
-
-    // Render data hutang
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      const div = document.createElement("div");
-      div.className = "hutang-item";
-      div.innerHTML = `
-        <strong>${data.nama}</strong><br/>
-        Jumlah: Rp ${data.jumlah.toLocaleString()}<br/>
-        Pinjam: ${data.tanggalPinjam}<br/>
-        Jatuh Tempo: ${data.jatuhTempo}<br/>
-        Status: ${data.status}
-      `;
-      container.appendChild(div);
-    });
-  } catch (error) {
-    console.error("Gagal menampilkan hutang:", error);
-    container.innerHTML = "<p>Gagal memuat data hutang.</p>";
-  }
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const div = document.createElement('div');
+    div.className = 'hutang-item';
+    div.innerHTML = `
+      <strong>${data.nama}</strong><br/>
+      Jumlah: Rp ${data.jumlah.toLocaleString()}<br/>
+      Pinjam: ${data.tanggalPinjam}<br/>
+      Jatuh Tempo: ${data.jatuhTempo}<br/>
+      Status: ${data.status}
+    `;
+    container.appendChild(div);
+  });
 }
 
 // Panggil saat pertama kali halaman dimuat
