@@ -126,11 +126,11 @@ tampilkanHutang();
 async function logout() {
   try {
     await auth.signOut(); // Proses logout
-    alert("Anda telah logout.");
+    showAlert("Anda telah logout.");
     window.location.href = "/"; // Redirect ke halaman login
   } catch (error) {
     console.error("Gagal logout:", error);
-    alert("Terjadi kesalahan saat logout.");
+    showAlert("Terjadi kesalahan saat logout.");
   }
 }
   </script>
