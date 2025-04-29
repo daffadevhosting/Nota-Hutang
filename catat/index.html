@@ -4,13 +4,28 @@ title: Catat Hutang
 permalink: /catat
 ---
 
+<!-- Tambahkan di <head> -->
+<style>
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+  }
+  .modal-box {
+    background: #fff; padding: 20px; border-radius: 8px; width: 300px;
+  }
+  .hutang-item {
+    border: 1px solid #ccc; padding: 10px; margin: 10px 0;
+  }
+</style>
+
+<!-- HTML konten -->
 <div class="app-container">
   <h2>Catat Hutang</h2>
   <button onclick="bukaModal()">+ Tambah Hutang</button>
 
   <h3>Daftar Hutang</h3>
   <div id="daftarHutang"></div>
-  <button id="logout" onclick="logout()">Logout</button>
+  <button id="logout">Logout</button>
 </div>
 
 <!-- Modal -->
@@ -25,14 +40,14 @@ permalink: /catat
     <button onclick="tutupModal()">Batal</button>
   </div>
 </div>
-  
+
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-  <script>
-    // Ganti dengan konfigurasi Firebase kamu
- const firebaseConfig = {
+<script>
+const firebaseConfig = {
   apiKey: "AIzaSyCiT9DTiVun4mKJAenmEHkhZ9jrjNMTEZs",
   authDomain: "notahutangmu.firebaseapp.com",
   projectId: "notahutangmu",
@@ -42,15 +57,15 @@ permalink: /catat
   measurementId: "G-54WD1L6R9Q",
 };
 
-// Inisialisasi Firebase
-const app = firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
 let editId = null;
 
+// Modal functions
 function bukaModal(data = null) {
-  document.getElementById("hutangModal").style.display = "block";
+  document.getElementById("hutangModal").style.display = "flex";
   document.getElementById("modalTitle").innerText = data ? "Edit Hutang" : "Tambah Hutang";
 
   if (data) {
@@ -72,12 +87,15 @@ function tutupModal() {
   document.getElementById("hutangModal").style.display = "none";
 }
 
+// Simpan data
 async function simpanHutang() {
   const nama = document.getElementById("nama").value.trim();
   const jumlah = parseInt(document.getElementById("jumlah").value);
   const tanggalPinjam = document.getElementById("tanggalPinjam").value;
   const jatuhTempo = document.getElementById("jatuhTempo").value;
-  const uid = auth.currentUser.uid;
+
+  const user = auth.currentUser;
+  if (!user) return alert("Pengguna belum login");
 
   if (!nama || isNaN(jumlah) || !tanggalPinjam || !jatuhTempo) {
     return alert("Isi semua kolom dengan benar.");
@@ -90,18 +108,24 @@ async function simpanHutang() {
       });
     } else {
       await db.collection("hutang").add({
-        uid, nama, jumlah, tanggalPinjam, jatuhTempo, status: "belum lunas"
+        uid: user.uid,
+        nama,
+        jumlah,
+        tanggalPinjam,
+        jatuhTempo,
+        status: "belum lunas"
       });
     }
 
     tampilkanHutang();
     tutupModal();
   } catch (e) {
-    console.error("Gagal menyimpan hutang", e);
+    console.error("Gagal simpan hutang", e);
     alert("Terjadi kesalahan.");
   }
 }
 
+// Tampilkan daftar
 async function tampilkanHutang() {
   const container = document.getElementById('daftarHutang');
   container.innerHTML = '';
@@ -118,19 +142,29 @@ async function tampilkanHutang() {
     const data = doc.data();
     const div = document.createElement('div');
     div.className = 'hutang-item';
+
+    const editData = {
+      id: doc.id,
+      nama: data.nama,
+      jumlah: data.jumlah,
+      tanggalPinjam: data.tanggalPinjam,
+      jatuhTempo: data.jatuhTempo
+    };
+
     div.innerHTML = `
       <strong>${data.nama}</strong><br/>
       Jumlah: Rp ${data.jumlah.toLocaleString()}<br/>
       Pinjam: ${data.tanggalPinjam}<br/>
       Jatuh Tempo: ${data.jatuhTempo}<br/>
       Status: ${data.status}<br/>
-      <button onclick='bukaModal(${JSON.stringify({...data, id: doc.id})})'>Edit</button>
+      <button onclick='bukaModal(${JSON.stringify(editData)})'>Edit</button>
       <button onclick='hapusHutang("${doc.id}")'>Hapus</button>
     `;
     container.appendChild(div);
   });
 }
 
+// Hapus hutang
 async function hapusHutang(id) {
   if (confirm("Hapus hutang ini?")) {
     await db.collection("hutang").doc(id).delete();
@@ -138,21 +172,23 @@ async function hapusHutang(id) {
   }
 }
 
-async function logout() {
+// Logout
+document.getElementById("logout").addEventListener("click", async () => {
   try {
     await auth.signOut();
     window.location.href = "/";
-  } catch (err) {
+  } catch (e) {
+    console.error("Gagal logout", e);
     alert("Gagal logout");
-    console.error(err);
   }
-}
+});
 
+// Cek login
 auth.onAuthStateChanged(user => {
   if (user) {
     tampilkanHutang();
   } else {
-    window.location.href = "/"; // redirect kalau belum login
+    window.location.href = "/";
   }
 });
-  </script>
+</script>
