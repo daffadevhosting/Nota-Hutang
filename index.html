@@ -30,15 +30,17 @@ header: Catat & Tagih
     const provider = new firebase.auth.GoogleAuthProvider();
 
     function loginGoogle() {
-      auth.signInWithPopup(provider)
-        .then(result => {
-          // Redirect ke halaman utama setelah login
-          window.location.href = "/catat"; // Ganti dengan file halaman pencatatan hutang
-        })
-        .catch(error => {
-          alert("Login gagal: " + error.message);
-        });
-    }
+  console.log("Login Google button clicked");
+  auth.signInWithPopup(provider)
+    .then(result => {
+      console.log("Login successful", result.user);
+      window.location.href = "/catat";
+    })
+    .catch(error => {
+      console.error("Login failed", error);
+      alert("Login gagal: " + error.message);
+    });
+}
 
     // Kalau sudah login, langsung arahkan ke halaman utama
     auth.onAuthStateChanged(user => {
