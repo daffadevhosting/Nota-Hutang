@@ -137,4 +137,22 @@ async function hapusHutang(id) {
     tampilkanHutang();
   }
 }
+
+async function logout() {
+  try {
+    await auth.signOut();
+    window.location.href = "/";
+  } catch (err) {
+    alert("Gagal logout");
+    console.error(err);
+  }
+}
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    tampilkanHutang();
+  } else {
+    window.location.href = "/"; // redirect kalau belum login
+  }
+});
   </script>
