@@ -57,10 +57,11 @@ body {
 // Tombol bergaya native
 button {
   display: inline-block;
-  background-color: #007aff;
+  background-color: #4285f4;
   color: white;
   padding: 12px 18px;
   font-size: 16px;
+  font-weight: bold;
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -69,7 +70,7 @@ button {
   margin-top: 12px;
 
   &:hover {
-    background-color: #005fcc;
+    background-color: #357ae8;
   }
 
   &:disabled {
@@ -78,7 +79,9 @@ button {
 }
 
 // Input & form
-input, textarea, select {
+input,
+textarea,
+select {
   width: 100%;
   padding: 12px;
   margin-top: 8px;
@@ -98,31 +101,54 @@ input, textarea, select {
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-    .login-box {
-      background: white;
-      padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 90%;
-      max-width: 360px;
-    }
+// Login container untuk pusatkan login-box
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16px;
+}
 
-    .login-box h2 {
-      margin-bottom: 20px;
-    }
+// Box login
+.login-box {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 90%;
+  max-width: 360px;
 
-    button {
-      background-color: #4285f4;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 16px;
-      font-weight: bold;
-      width: 100%;
-    }
+  h2 {
+    margin-bottom: 20px;
+  }
+}
 
-    button:hover {
-      background-color: #357ae8;
-    }
+// Responsif untuk layar kecil
+@media (max-width: 480px) {
+  body {
+    font-size: 15px;
+  }
+
+  .app-container {
+    padding: 12px;
+  }
+
+  .login-box {
+    padding: 16px;
+    width: 95%;
+  }
+
+  button {
+    padding: 10px 14px;
+    font-size: 15px;
+  }
+
+  input,
+  textarea,
+  select {
+    padding: 10px;
+    font-size: 15px;
+  }
+}
